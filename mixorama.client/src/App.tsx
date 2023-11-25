@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import './App.css';
+import LoginButton from './loginButton';
 
 interface Forecast {
     date: string;
@@ -41,6 +42,7 @@ function App() {
     return (
         <div>
             <h1 id="tabelLabel">Weather forecast</h1>
+            <LoginButton />
             <p>This component demonstrates fetching data from the server.</p>
             {contents}
         </div>
