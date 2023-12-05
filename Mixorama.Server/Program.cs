@@ -1,39 +1,39 @@
-var builder = WebApplication.CreateBuilder(args);
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Mixorama.Server.Authentication;
 
-// Add services to the container.
+var builder = WebApplication.CreateBuilder(args);
+{
+    builder.Services.AddHttpContextAccessor();
+
+    var configuration = builder.Configuration;
+
+    builder.Services.AddControllers();
+    builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    })
+    .AddCookie(o =>
+    {
+        o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        o.Cookie.SameSite = SameSiteMode.Strict;
+        o.Cookie.HttpOnly = true;
+    })
+    .AddOpenIdConnect("Auth0", options => AuthenticationExtensions.ConfigureOpenIdConnect(options, configuration));
+
+    builder.Services.AddHttpClient();
+}
 
 var app = builder.Build();
-
-app.UseDefaultFiles();
-app.UseStaticFiles();
-
-// Configure the HTTP request pipeline.
-
-app.UseHttpsRedirection();
-
-var summaries = new[]
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    if (app.Environment.IsDevelopment())
+        app.UseDeveloperExceptionPage();
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-});
-
-app.MapFallbackToFile("/index.html");
-
-app.Run();
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    app.UseDefaultFiles();
+    app.UseStaticFiles();
+    app.UseHttpsRedirection();
+    app.MapControllers();
+    app.MapFallbackToFile("/index.html");
+    app.Run();
 }

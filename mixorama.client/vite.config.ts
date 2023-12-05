@@ -53,6 +53,14 @@ export default defineConfig({
             '^/weatherforecast': {
                 target,
                 secure: false
+            },
+            '^/auth/': {
+                target,
+                secure: false
+            },
+            '^/callback': {
+                target,
+                secure: false
             }
         },
         port: 5173,
