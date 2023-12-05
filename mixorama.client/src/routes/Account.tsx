@@ -4,12 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 interface UserProps {}
 
 export const User: React.FC<UserProps> = () => {
-  const { user, login, isAuthenticated } = useAuth() || {};
-
-  if (!isAuthenticated && login) {
-    login();
-    return <div>Redirecting to login...</div>;
-  }
+  const { user } = useAuth() || {};
 
   const renderClaimsTable = function (claims: { type: string; value: string }[]) {
     return (
