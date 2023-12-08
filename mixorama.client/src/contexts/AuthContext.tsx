@@ -11,7 +11,6 @@ export interface AuthContextProps {
 interface ChildProps {
     children: React.ReactNode;
      }
-  
 
 export const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
@@ -22,7 +21,9 @@ export const AuthProvider: FC<ChildProps> = ({ children }) => {
     const [user, setUser] = useState();
     const [isLoading, setIsLoading] = useState(false);
 
+    
     const getUser = async () => {
+        console.log("Getting user...");
         const response = await fetch('/auth/user');
         const json = await response.json();
 

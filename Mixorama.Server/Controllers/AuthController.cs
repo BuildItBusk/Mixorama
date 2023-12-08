@@ -30,7 +30,6 @@ public class AuthController : Controller
         });
     }
 
-    [Authorize]
     [HttpGet("user")]
     public async Task<ActionResult> GetUser()
     {
@@ -42,7 +41,7 @@ public class AuthController : Controller
                             new { type = c.Type, value = c.Value })
                             .ToArray();
 
-            return Json(new { isAuthenticated = true, claims = claims });
+            return Json(new { isAuthenticated = true, claims });
         }
 
         return Json(new { isAuthenticated = false });
