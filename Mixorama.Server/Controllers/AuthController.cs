@@ -46,4 +46,14 @@ public class AuthController : Controller
 
         return Json(new { isAuthenticated = false });
     }
+
+    [HttpGet("secret")]
+    [Authorize]
+    public ActionResult Secret()
+    {
+        return Ok(new
+        {
+            Message = "Only authorized users should see this."
+        });
+    }
 }

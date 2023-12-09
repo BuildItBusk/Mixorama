@@ -7,6 +7,7 @@ import Root from './routes/root.tsx';
 import ErrorPage from './routes/ErrorPage.tsx';
 import LoginPage from './routes/login.tsx';
 import Account from './routes/Account.tsx';
+import Secret from './routes/secret.tsx';
 
 const router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
   {
     path: "/account", 
     element: <Account />
+  },
+  {
+    path: "/secret",
+    element: <Secret />,
   }
 ]);
 

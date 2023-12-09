@@ -19,6 +19,11 @@ var builder = WebApplication.CreateBuilder(args);
         o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
         o.Cookie.SameSite = SameSiteMode.Strict;
         o.Cookie.HttpOnly = true;
+        o.Events.OnRedirectToLogin = context =>
+        {
+            context.Response.StatusCode = 401;
+            return Task.CompletedTask;
+        };
     })
     .AddOpenIdConnect("Auth0", options => AuthenticationExtensions.ConfigureOpenIdConnect(options, configuration));
 
