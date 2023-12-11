@@ -16,30 +16,29 @@ const router = createBrowserRouter([
     path: "/",
     element: <Root />,
     errorElement: <ErrorPage />,
-  },
-  { 
-    path: "/login", 
-    element: <LoginPage /> 
-  },
-  {
-    path: "/account", 
-    element: <Account />
-  },
-  {
-    path: "/secret",
-    element: <Secret />,
-  },
-  {
-    path: "/search",
-    element: <Search />,
-  },
-  {
-    path: "/random",
-    element: <RandomCocktail />,
+    children: [
+    { 
+      path: "/login", 
+      element: <LoginPage /> 
+    },
+    {
+      path: "/account", 
+      element: <Account />
+    },
+    {
+      path: "/secret",
+      element: <Secret />,
+    },
+    {
+      path: "/search",
+      element: <Search />,
+    },
+    {
+      path: "/random",
+      element: <RandomCocktail />,
+    }]
   }
 ]);
-
-
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <React.StrictMode>
