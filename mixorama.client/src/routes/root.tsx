@@ -1,3 +1,5 @@
+import Navbar from "../modules/navbar";
+
 const Root = () => {
     return (
         <>
@@ -11,6 +13,7 @@ const Root = () => {
                     </li>
                 </ul>
             </nav>
+            <Navbar />
         </>
     );
 }
