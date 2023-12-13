@@ -47,6 +47,24 @@ public class AuthController : Controller
         return Json(new { isAuthenticated = false });
     }
 
+    [HttpGet("profile")]
+    [Authorize]
+    public IActionResult Profile()
+    {
+        var response = new ProfileResponse(
+            Name: User?.Identity?.Name ?? "",
+            EmailAddress: User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value,
+            ProfileImage: User?.Claims.FirstOrDefault(c => c.Type == "picture")?.Value);
+
+        return Ok(response);
+    }
+
+    public record class ProfileResponse(
+        string? Name,
+        string? EmailAddress,
+        string? ProfileImage
+    );
+
     [HttpGet("secret")]
     [Authorize]
     public ActionResult Secret()

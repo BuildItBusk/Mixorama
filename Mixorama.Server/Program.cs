@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Mixorama.Server.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,24 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
     var configuration = builder.Configuration;
 
     builder.Services.AddControllers();
-    builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    })
-    .AddCookie(o =>
-    {
-        o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        o.Cookie.SameSite = SameSiteMode.Strict;
-        o.Cookie.HttpOnly = true;
-        o.Events.OnRedirectToLogin = context =>
-        {
-            context.Response.StatusCode = 401;
-            return Task.CompletedTask;
-        };
-    })
-    .AddOpenIdConnect("Auth0", options => AuthenticationExtensions.ConfigureOpenIdConnect(options, configuration));
+    builder.Services.AddBackendForFrontendAuthentication(configuration);
 
     builder.Services.AddHttpClient();
 }

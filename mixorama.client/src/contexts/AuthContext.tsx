@@ -27,6 +27,8 @@ export const AuthProvider: FC<ChildProps> = ({ children }) => {
         const response = await fetch('/auth/user');
         const json = await response.json();
 
+        console.log("user", json);
+
         setIsAuthenticated(json.isAuthenticated);
         setIsLoading(false);
         if (json.isAuthenticated) setUser(json.claims);

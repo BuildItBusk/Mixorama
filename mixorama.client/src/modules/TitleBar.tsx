@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const TitleBar = () => {
     return(
         <div className="fixed top-0 w-full border-b border-gray-700">
@@ -6,7 +8,9 @@ const TitleBar = () => {
                     <h1 className="text-2xl">Mixorama</h1>
                 </div>
                 <div className="absolute right-4">
-                    <img src="user_icon.png" className="h-8" alt="Profile" />
+                    <Link to="/profile">
+                        <img src="user_icon.png" className="h-8" alt="Profile" />
+                    </Link>
                 </div>
             </div>
         </div>

@@ -6,10 +6,9 @@ import { AuthProvider } from './contexts/AuthContext.tsx';
 import Root from './routes/root.tsx';
 import ErrorPage from './routes/ErrorPage.tsx';
 import LoginPage from './routes/login.tsx';
-import Account from './routes/Account.tsx';
-import Secret from './routes/secret.tsx';
 import Search from './routes/Search.tsx';
 import RandomCocktail from './routes/RandomCocktail.tsx';
+import Profile from './routes/Profile.tsx';
 
 const router = createBrowserRouter([
   {
@@ -22,12 +21,8 @@ const router = createBrowserRouter([
       element: <LoginPage /> 
     },
     {
-      path: "/account", 
-      element: <Account />
-    },
-    {
-      path: "/secret",
-      element: <Secret />,
+      path: "/profile", 
+      element: <Profile />
     },
     {
       path: "/search",
