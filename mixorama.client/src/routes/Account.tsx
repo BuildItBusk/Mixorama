@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 interface UserProps {}
 
 export const User: React.FC<UserProps> = () => {
-  const { user } = useAuth() || {};
+  const { permissions: user } = useAuth() || {};
 
   const renderClaimsTable = function (claims: { type: string; value: string }[]) {
     return (

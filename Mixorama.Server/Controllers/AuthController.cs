@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace Mixorama.Server.Controllers;
@@ -14,7 +15,7 @@ public class AuthController : Controller
     {
         return new ChallengeResult("Auth0", new AuthenticationProperties()
         {
-            RedirectUri = returnUrl
+            RedirectUri = returnUrl,
         });
     }
 
@@ -35,17 +36,31 @@ public class AuthController : Controller
     {
         if (User.Identity?.IsAuthenticated ?? false)
         {
-            var token = await HttpContext.GetTokenAsync("access_token");
+             var accessToken = await HttpContext.GetTokenAsync("access_token");
+            var jwt = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
 
-            var claims = ((ClaimsIdentity)User.Identity).Claims.Select(c =>
-                            new { type = c.Type, value = c.Value })
-                            .ToArray();
+            Claim[] identityClaims = ((ClaimsIdentity)User.Identity).Claims.Select(c =>
+                                new Claim(c.Type, c.Value)).ToArray();
 
-            return Json(new { isAuthenticated = true, claims });
+            Claim[] permissionClaims = jwt.Claims.Where(c => c.Type == "permissions").Select(c =>
+                                new Claim(c.Type, c.Value)).ToArray();
+
+            Claim[] claims = [.. identityClaims, .. permissionClaims];
+
+            UserResponse response = new(IsAuthenticated: true, claims);
+            return Ok(response);
         }
 
-        return Json(new { isAuthenticated = false });
+        return Ok(new UserResponse(IsAuthenticated: false, Claims: Array.Empty<Claim>()));
     }
+
+    public record class UserResponse(
+        bool IsAuthenticated,
+        IEnumerable<Claim> Claims);
+
+    public record class Claim(
+        string Type,
+        string Value);
 
     [HttpGet("profile")]
     [Authorize]
@@ -62,8 +77,7 @@ public class AuthController : Controller
     public record class ProfileResponse(
         string? Name,
         string? EmailAddress,
-        string? ProfileImage
-    );
+        string? ProfileImage);
 
     [HttpGet("secret")]
     [Authorize]

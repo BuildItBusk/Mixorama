@@ -16,12 +16,12 @@ internal static class AuthenticationExtensions
             options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
         })
-        .AddCookie(o =>
+        .AddCookie(options =>
         {
-            o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-            o.Cookie.SameSite = SameSiteMode.Strict;
-            o.Cookie.HttpOnly = true;
-            o.Events.OnRedirectToLogin = context =>
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            options.Cookie.SameSite = SameSiteMode.Strict;
+            options.Cookie.HttpOnly = true;
+            options.Events.OnRedirectToLogin = context =>
             {
                 context.Response.StatusCode = 401;
                 return Task.CompletedTask;
@@ -41,6 +41,7 @@ internal static class AuthenticationExtensions
             options.Scope.Add("openid");
             options.Scope.Add("profile");
             options.Scope.Add("email");
+            options.Scope.Add("offline_access"); // Allows refresh tokens
 
             options.ResponseType = OpenIdConnectResponseType.CodeIdToken;
             options.ResponseMode = OpenIdConnectResponseMode.FormPost;
@@ -68,6 +69,10 @@ internal static class AuthenticationExtensions
                     context.Response.Redirect(logoutUri);
                     context.HandleResponse();
 
+                    return Task.CompletedTask;
+                },
+                OnRedirectToIdentityProvider = context => {
+                    context.ProtocolMessage.SetParameter("audience", configuration["Auth0:ApiAudience"]);
                     return Task.CompletedTask;
                 }
             };

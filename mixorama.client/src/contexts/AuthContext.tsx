@@ -1,8 +1,13 @@
 import { useState, useEffect, useContext, createContext, FC } from "react";
 
+export interface ClaimProps {
+    type: string,
+    value: string
+}
+
 export interface AuthContextProps {
     isAuthenticated: boolean,
-    user: any,
+    permissions: Array<ClaimProps>,
     isLoading: boolean,
     login: () => void,
     logout: () => void
@@ -18,7 +23,7 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider: FC<ChildProps> = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [user, setUser] = useState();
+    const [permissions, setPermissions] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
     
@@ -27,11 +32,9 @@ export const AuthProvider: FC<ChildProps> = ({ children }) => {
         const response = await fetch('/auth/user');
         const json = await response.json();
 
-        console.log("user", json);
-
         setIsAuthenticated(json.isAuthenticated);
         setIsLoading(false);
-        if (json.isAuthenticated) setUser(json.claims);
+        if (json.isAuthenticated) setPermissions(json.claims);
     }
 
     useEffect(() => {
@@ -50,7 +53,7 @@ export const AuthProvider: FC<ChildProps> = ({ children }) => {
         <AuthContext.Provider
             value={{
                 isAuthenticated,
-                user,
+                permissions,
                 isLoading,
                 login,
                 logout

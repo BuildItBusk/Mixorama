@@ -1,13 +1,19 @@
 import { useAuth } from "../contexts/AuthContext";
 
 const Profile = () => {
-    const { login, user, isAuthenticated } = useAuth() || {};
+    const { login, logout, isAuthenticated } = useAuth() || {};
     
     const handleLogin = () => {
         if (login) {
             login();
         }
     };
+    
+    const handleLogout = () => {
+        if (logout) {
+            logout();
+        }
+    }
 
     var profile = null;
 
@@ -26,6 +32,7 @@ const Profile = () => {
             <h2>Profile Page</h2>
             {!isAuthenticated && <button onClick={handleLogin}>Login</button>}
             {isAuthenticated && <div>You are logged in</div>}
+            {isAuthenticated && <button onClick={handleLogout}>Logout</button>}
         </>
     );
 }
