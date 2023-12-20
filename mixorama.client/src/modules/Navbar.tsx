@@ -3,11 +3,7 @@ import { useAuth } from "../contexts/AuthContext";
 
 const Navbar = () => {
     const { permissions } = useAuth() || {};
-
-    console.log(permissions);
     const displayAddButton =  permissions?.some(c => c.type === "permissions" && c.value === "create:cocktails");
-
-    console.log(displayAddButton);
 
     return (
         <>
