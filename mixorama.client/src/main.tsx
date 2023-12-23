@@ -9,6 +9,7 @@ import LoginPage from './routes/login.tsx';
 import Search from './routes/Search.tsx';
 import RandomCocktail from './routes/RandomCocktail.tsx';
 import Profile from './routes/Profile.tsx';
+import CreateCocktail from './routes/CreateCocktail.tsx';
 
 const router = createBrowserRouter([
   {
@@ -31,6 +32,10 @@ const router = createBrowserRouter([
     {
       path: "/random",
       element: <RandomCocktail />,
+    },
+    {
+      path: "/create",
+      element: <CreateCocktail />,
     }]
   }
 ]);
