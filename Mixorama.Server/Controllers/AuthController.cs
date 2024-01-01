@@ -8,7 +8,7 @@ namespace Mixorama.Server.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class AuthController : Controller
+public class AuthController : ControllerBase
 {
     [HttpGet("login")]
     public ActionResult Login(string returnUrl = "/")
@@ -78,14 +78,4 @@ public class AuthController : Controller
         string? Name,
         string? EmailAddress,
         string? ProfileImage);
-
-    [HttpGet("secret")]
-    [Authorize]
-    public ActionResult Secret()
-    {
-        return Ok(new
-        {
-            Message = "Only authorized users should see this."
-        });
-    }
 }

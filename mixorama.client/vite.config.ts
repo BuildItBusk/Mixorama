@@ -50,11 +50,19 @@ export default defineConfig({
     },
     server: {
         proxy: {
-            '^/auth/': {
+            '/api/cocktails': {
+                target,
+                secure: false,
+            },
+            '/auth': {
                 target,
                 secure: false
             },
-            '^/callback': {
+            '/callback': {
+                target,
+                secure: false
+            },
+            '/swagger' : {
                 target,
                 secure: false
             }
