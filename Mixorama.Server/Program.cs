@@ -4,6 +4,12 @@ var builder = WebApplication.CreateBuilder(args);
 {
     var configuration = builder.Configuration;
     
+    builder.Logging.ClearProviders();
+    builder.Logging.AddJsonConsole(options => options.JsonWriterOptions = new() 
+    { 
+        Indented = true 
+    });
+
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddBackendForFrontendAuthentication(configuration);
     builder.Services.AddHttpClient();
