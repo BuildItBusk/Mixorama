@@ -1,3 +1,4 @@
+import FileInput from "../components/FileInput";
 import Input from "../components/Input";
 import Label from "../components/Label";
 import { useForm, SubmitHandler } from "react-hook-form";
@@ -57,18 +58,22 @@ const CreateCocktail = () => {
                     <div className="mb-4">
                         <Label htmlFor="name" text="Cocktail navn" />
                         <Input
-                            inputName="name"
+                            inputName="cockatailName"
+                            placeholder="Mojito"
                             {...register("name")}
                         />
                     </div>
-                    {/* <div className="my-4">
-                        <Label htmlFor="description" text="Beskrivelse" />
-                        <textarea id="description" className="block w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="A delicious cocktail with rum, coconut and pinaple." />
+                    <div className="mb-4">
+                    <textarea 
+                        id="description"
+                        className="resize-none block w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="A delicious cocktail with rum, coconut and pinaple." />
                     </div>
-                    <div className="my-4">
-                        <Label htmlFor="ingredients" text="Ingredienser" />
-                    </div> */}
-                    <div className="my-4">
+                    <div className="mb-4">
+                        <FileInput 
+                            inputName="imagePath"
+                            {...register("imageUrl")} />
+                    </div>
+                    <div className="mb-4">
                         <input type="submit" 
                             value="Gem" 
                             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4" 
