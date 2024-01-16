@@ -1,6 +1,7 @@
 import FileInput from "../components/FileInput";
 import Input from "../components/Input";
 import Label from "../components/Label";
+import TextArea from "../components/TextArea";
 import { useForm, SubmitHandler } from "react-hook-form";
 
 interface Cocktail {
@@ -17,14 +18,21 @@ interface Ingredient {
 }
 
 const CreateCocktail = () => { 
-    const {register, handleSubmit} = useForm({ 
+    const {register, getValues, handleSubmit} = useForm<Cocktail>({ 
         defaultValues: { 
             name: '',
             description: '',
             imageUrl: '',
-            ingredients: []
+            ingredients: [
+                {name: 'Lys rom', quantity: '', unit: ''}
+            ]
         } 
     });
+
+    const onAddIngredient = () => {
+        console.log("Adding ingredient");
+        getValues().ingredients.push({name: '', quantity: '', unit: ''});
+    }
     
     const onSubmit: SubmitHandler<Cocktail> = async data => {
         try {
@@ -54,24 +62,61 @@ const CreateCocktail = () => {
     return (
         <>
             <div className="flex items-center justify-center content-start w-full">
-                <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-xl">
+                <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-xl mx-6 my-2">
                     <div className="mb-4">
                         <Label htmlFor="name" text="Cocktail navn" />
                         <Input
                             inputName="cockatailName"
-                            placeholder="Mojito"
+                            placeholder="Pinã Colada"
                             {...register("name")}
                         />
                     </div>
                     <div className="mb-4">
-                    <textarea 
-                        id="description"
-                        className="resize-none block w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="A delicious cocktail with rum, coconut and pinaple." />
+                        <Label htmlFor="description" text="Beskrivelse" />
+                        <TextArea 
+                            id="cocktailDescription"
+                            inputName="description"
+                            placeholder="A delicious cocktail with rum, coconut and pinaple."
+                            {...register("description")} />
                     </div>
                     <div className="mb-4">
+                        <Label htmlFor="imageUrl" text="Billede" />
                         <FileInput 
                             inputName="imagePath"
                             {...register("imageUrl")} />
+                    </div>
+                    <div className="mb-4">
+                        <Label htmlFor="ingredients" text="Ingredienser" />
+                        
+                        <div  className="flex flex-col space-y-3">
+                            {getValues().ingredients.map(() => (
+                            <div key={Math.random()} className="flex flex-row space-x-3">
+                                <input
+                                    type="text"
+                                    placeholder="Lys rom" 
+                                    className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" />
+                                
+                                <input 
+                                    type="text" 
+                                    placeholder="60" 
+                                    className="block w-1/3 text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" />
+
+                                <select
+                                    className="w-1/3 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                    <option value="ml">ml</option>
+                                    <option value="dashes">stænk</option>
+                                    <option value="stk">stk</option>    
+                                </select>                 
+                            </div>
+                            ))} 
+                            <div>
+                                <button 
+                                    type="button"
+                                    onClick={onAddIngredient}
+                                    className="w-full bg-transparent border-2 border-dashed border-blue-500">Tilføj ingrediens</button>
+                            </div>
+                        </div> 
+                                            
                     </div>
                     <div className="mb-4">
                         <input type="submit" 
