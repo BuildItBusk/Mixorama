@@ -22,13 +22,31 @@ public class CocktailsController : ControllerBase
         return Ok(result);
     }
 
+    [HttpPost("images")]
+    public async Task<IActionResult> UploadImage([FromForm] IFormFile image)
+    {
+        if (image == null || image.Length == 0)
+            return BadRequest("Image is null or empty.");
+
+        string relativeUrl = $"Images/{Guid.NewGuid()}.{image.FileName.Split('.').Last()}";
+        using Stream fileStream = new FileStream(relativeUrl, FileMode.Create);
+        await image.CopyToAsync(fileStream);
+        return Ok(new { RelativeUrl = relativeUrl});
+    }
+
     [HttpPost]
     [ProducesResponseType(typeof(Cocktail), StatusCodes.Status201Created)]
-    public async Task<IActionResult> CreateCocktail(Cocktail cocktail)
+    public async Task<IActionResult> CreateCocktail([FromForm] CreateCocktailRequest request)
     {
         // TODO: Actually add the cocktail to the database
-        _logger.LogCocktailCreated(cocktail);
-        return CreatedAtAction(nameof(GetCocktail), new { name = cocktail.Name }, cocktail);
+        _logger.LogCocktailCreated(request);
+
+        string filePath = $"{request.Name}.jpg";
+        using (Stream fileStream = new FileStream(filePath, FileMode.Create)) {
+            await request.Image.CopyToAsync(fileStream);
+        }
+
+        return CreatedAtAction(nameof(GetCocktail), new { name = request.Name }, request);
     }
 
     [HttpGet("{name}")]
@@ -85,4 +103,15 @@ public class CocktailsController : ControllerBase
         public string Description { get; init; } = default!;
         public string ImageUrl { get; init; } = default!;
     }
+
+    public record CreateCocktailRequest(
+        string Name,  
+        string Description, 
+        IFormFile Image,
+        Ingredient[] Ingredients);
+
+    public record Ingredient(
+        string Name,
+        string Quantity,
+        string Unit);
 }

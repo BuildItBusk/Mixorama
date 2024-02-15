@@ -1,147 +1,159 @@
-import FileInput from "../components/FileInput";
+import { ChangeEvent, useState } from "react";
 import Input from "../components/Input";
 import Label from "../components/Label";
 import TextArea from "../components/TextArea";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 
-interface Cocktail {
-    name: string;
-    description: string;
-    imageUrl: string;
-    ingredients: Ingredient[];
-}
-
-interface Ingredient {
-    name: string;
-    quantity: string;
-    unit: string;
-}
-
-const CreateCocktail = () => { 
-    const {register, getValues, setValue, watch, handleSubmit} = useForm<Cocktail>({ 
-        defaultValues: { 
-            name: '',
-            description: '',
-            imageUrl: '',
-            ingredients: [
-                {name: '', quantity: '', unit: ''}
-            ]
-        } 
-    });
-
-    const ingridientsList = watch('ingredients')
-
-    const onAddIngredient = () => {
-        console.log("Adding ingredient");
-        setValue('ingredients', [...getValues('ingredients'), {name: '', quantity: '', unit: ''}])
+const CreateCocktail = () => {
+  const { control, register, handleSubmit } = useForm({
+    defaultValues: {
+      name: '',
+      description: '',
+      ingredients: [
+        { name: '', quantity: '', unit: '' }
+      ]
     }
+  });
 
-    const onRemoveIngredient = () => {
-        console.log("Removing ingredient");
-        setValue('ingredients', [...getValues('ingredients').slice(0, -1)])
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "ingredients",
+  });
+
+  const onSubmit = async (data: any) => {
+    const response = await fetch('/api/cocktails', {
+      method: 'POST',
+      body: data,
+    })
+      .then(response => response.json())
+      .catch(error => console.error('Error:', error));
+
+    console.log("Response", response);
+  };
+
+  const [imageUrl, setImageUrl] = useState<string>('');
+
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    console.log(file?.name);
+
+    if (!file)
+      return;
+
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch('api/cocktails/images', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        // We need to store the relative URL for later use
+        const result = await response.json();
+        setImageUrl(result.relativeUrl);
+        console.log('File uploaded:', imageUrl);
+      } else {
+        console.error('File upload failed:', response.statusText);
+      }
+    } catch (error) {
+      console.error('An error occurred during file upload:', error);
     }
-    
-    const onSubmit: SubmitHandler<Cocktail> = async data => {
-        try {
-            console.log("Submitting cocktail", data);
+  }
 
-            data.description = "Test description";
-            data.imageUrl = "Test image url";
+  return (
+    <>
+      <div className="flex items-center justify-center content-start w-full">
+        <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-xl mx-6 my-2">
+          <div className="mb-4">
+            <Label htmlFor="name" text="Cocktail navn" />
+            <Input
+              inputName="cockatailName"
+              placeholder="Pinã Colada"
+              {...register("name")}
+            />
+          </div>
+          <div className="mb-4">
+            <Label htmlFor="description" text="Beskrivelse" />
+            <TextArea
+              id="cocktailDescription"
+              inputName="description"
+              placeholder="A delicious cocktail with rum, coconut and pinaple."
+              {...register("description")} />
+          </div>
+          <div className="mb-4">
+            <Label htmlFor="image" text="Billede" />
+            <input 
+              title="Upload image"
+              type="file"
+              id="image"
+              name="image"
+              onChange={handleFileChange} />
+          </div>
+          <div className="mb-4">
+            <Label htmlFor="ingredients" text="Ingredienser" />
 
-            const response = await fetch('/api/cocktails', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            });
-
-            if (response.ok) {
-                console.log('Cocktail created');
-            } else {
-                console.log('Error creating cocktail');
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    };
-    
-    return (
-        <>
-            <div className="flex items-center justify-center content-start w-full">
-                <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-xl mx-6 my-2">
-                    <div className="mb-4">
-                        <Label htmlFor="name" text="Cocktail navn" />
-                        <Input
-                            inputName="cockatailName"
-                            placeholder="Pinã Colada"
-                            {...register("name")}
-                        />
-                    </div>
-                    <div className="mb-4">
-                        <Label htmlFor="description" text="Beskrivelse" />
-                        <TextArea 
-                            id="cocktailDescription"
-                            inputName="description"
-                            placeholder="A delicious cocktail with rum, coconut and pinaple."
-                            {...register("description")} />
-                    </div>
-                    <div className="mb-4">
-                        <Label htmlFor="imageUrl" text="Billede" />
-                        <FileInput 
-                            inputName="imagePath"
-                            {...register("imageUrl")} />
-                    </div>
-                    <div className="mb-4">
-                        <Label htmlFor="ingredients" text="Ingredienser" />
-                        
-                        <div  className="flex flex-col space-y-3">
-                            {ingridientsList.map(() => (
-                            <div key={Math.random()} className="flex flex-row space-x-3">
-                                <div className="w-full">
-                                    <Input
-                                        inputName="ingredientName"
-                                        placeholder="Lys rom" />
-                                </div>
-                                <div className="w-1/3">
-                                <Input 
-                                    inputName="ingredientQuantity"
-                                    placeholder="60" />
-                                </div>
-                                <div className="w-1/3">
-                                    <select
-                                        className="w-1/3 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                        <option value="ml">ml</option>
-                                        <option value="dashes">stænk</option>
-                                        <option value="stk">stk</option>    
-                                    </select>
-                                </div>
-                                <button type="button" className="p-0 w-12 bg-transparent" onClick={onRemoveIngredient}>
-                                    <div className="flex items-center">
-                                        <img src="trash-icon.png"/>
-                                    </div>
-                                </button>
-                            </div>
-                            ))} 
-                            <div>
-                                <button 
-                                    type="button"
-                                    onClick={onAddIngredient}
-                                    className="w-full bg-transparent border-2 border-dashed border-blue-500">Tilføj ingrediens</button>
-                            </div>
-                        </div> 
-                                            
-                    </div>
-                    <div className="mb-4">
-                        <input type="submit" 
-                            value="Gem" 
-                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4" 
-                        />
-                    </div>
-                </form>
+            <div className="flex flex-col space-y-3">
+              {fields.map((ingredient, index) => (
+                <div key={Math.random()} className="flex flex-row space-x-3">
+                  <div className="w-full">
+                    <Input
+                      key={ingredient.id}
+                      inputName="ingredientName"
+                      type="text"
+                      placeholder="Lys rom"
+                      {...register(`ingredients.${index}.name`)} />
+                  </div>
+                  <div className="w-1/3">
+                    <Input
+                      inputName="ingredientQuantity"
+                      type="number"
+                      placeholder="60"
+                      {...register(`ingredients.${index}.quantity`)} />
+                  </div>
+                  <div className="w-1/3">
+                    <select
+                      title="Unit"
+                      className="h-full w-1/3 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                      <option value="ml">ml</option>
+                      <option value="dashes">stænk</option>
+                      <option value="stk">stk</option>
+                    </select>
+                  </div>
+                  <div className="w-1/3">
+                    <button
+                      title="Remove ingredient"
+                      type="button"
+                      className="h-full w-12 bg-red-500 hover:bg-red-700 text-white font-bold p-3 rounded-xl"
+                      hidden={fields.length === 1}
+                      onClick={() => remove(index)}>
+                      <div className="flex items-center">
+                        <img src="trash-icon.png" alt="Fjern ingrediens" />
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              ))}
+              <div>
+                <button
+                  type="button"
+                  onClick={() => (append({ name: '', quantity: '', unit: '' }))}
+                  className="w-full bg-transparent border-2 border-dashed border-blue-500">Tilføj ingrediens</button>
+              </div>
             </div>
-        </>
-    );
+
+          </div>
+          <div className="mb-4">
+            <input type="submit"
+              value="Gem"
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4"
+            />
+          </div>
+        </form>
+      </div>
+    </>
+  );
 }
 
 export default CreateCocktail;
