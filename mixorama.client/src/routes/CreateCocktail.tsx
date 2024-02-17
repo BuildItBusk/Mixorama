@@ -1,14 +1,15 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent } from "react";
 import Input from "../components/Input";
 import Label from "../components/Label";
 import TextArea from "../components/TextArea";
 import { useForm, useFieldArray } from "react-hook-form";
 
 const CreateCocktail = () => {
-  const { control, register, handleSubmit } = useForm({
+  const { control, register, handleSubmit, getValues, setValue } = useForm({
     defaultValues: {
       name: '',
       description: '',
+      imageUrl: '',
       ingredients: [
         { name: '', quantity: '', unit: '' }
       ]
@@ -21,9 +22,16 @@ const CreateCocktail = () => {
   });
 
   const onSubmit = async (data: any) => {
+    const requestBody = JSON.stringify(data);
+    console.log("Request body", requestBody);
+
     const response = await fetch('/api/cocktails', {
       method: 'POST',
-      body: data,
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: requestBody,
     })
       .then(response => response.json())
       .catch(error => console.error('Error:', error));
@@ -31,12 +39,8 @@ const CreateCocktail = () => {
     console.log("Response", response);
   };
 
-  const [imageUrl, setImageUrl] = useState<string>('');
-
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    console.log(file?.name);
-
     if (!file)
       return;
 
@@ -51,9 +55,9 @@ const CreateCocktail = () => {
 
       if (response.ok) {
         // We need to store the relative URL for later use
-        const result = await response.json();
-        setImageUrl(result.relativeUrl);
-        console.log('File uploaded:', imageUrl);
+        const result = await response.json()
+        setValue('imageUrl', result.relativeUrl);
+        console.log('File uploaded:', getValues('imageUrl'));
       } else {
         console.error('File upload failed:', response.statusText);
       }
