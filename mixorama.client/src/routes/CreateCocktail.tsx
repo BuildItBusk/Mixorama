@@ -1,10 +1,12 @@
-import { ChangeEvent } from "react";
+import { ChangeEvent, useState } from "react";
 import Input from "../components/Input";
 import Label from "../components/Label";
 import TextArea from "../components/TextArea";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, set } from "react-hook-form";
 
 const CreateCocktail = () => {
+  const [fileUploadError, setFileUploadError] = useState('');
+  
   const { control, register, handleSubmit, getValues, setValue } = useForm({
     defaultValues: {
       name: '',
@@ -59,7 +61,9 @@ const CreateCocktail = () => {
         setValue('imageUrl', result.relativeUrl);
         console.log('File uploaded:', getValues('imageUrl'));
       } else {
-        console.error('File upload failed:', response.statusText);
+        const error = await response.text();
+        console.error('File upload failed:', error);
+        setFileUploadError(error);
       }
     } catch (error) {
       console.error('An error occurred during file upload:', error);
@@ -94,6 +98,7 @@ const CreateCocktail = () => {
               id="image"
               name="image"
               onChange={handleFileChange} />
+            { fileUploadError && <p className="text-red-500 text-xs italic">{fileUploadError}</p>}
           </div>
           <div className="mb-4">
             <Label htmlFor="ingredients" text="Ingredienser" />

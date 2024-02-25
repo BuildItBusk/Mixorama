@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Mixorama.Server.Infrastructure;
 
 namespace Mixorama.Server.Controllers;
 
@@ -37,9 +38,14 @@ public class CocktailsController : ControllerBase
         fileName = Path.ChangeExtension(fileName, image.FileName.Split('.').Last());
 
         string relativeUrl = $"{directory}/{fileName}";
+        using Stream fileStream = image.OpenReadStream();
 
-        using Stream fileStream = new FileStream(relativeUrl, FileMode.Create);
-        await image.CopyToAsync(fileStream);
+        if (fileStream.Length > 1024 * 1024 * 1) // 1 MB
+            return BadRequest("Maximum image size is 1 MB.");
+
+        BlobStorage blobStorage = new();
+        await blobStorage.UploadFile(fileStream, fileName);
+
         return Ok(new { RelativeUrl = relativeUrl});
     }
 
