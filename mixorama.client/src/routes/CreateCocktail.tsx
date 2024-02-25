@@ -2,12 +2,12 @@ import { ChangeEvent, useState } from "react";
 import Input from "../components/Input";
 import Label from "../components/Label";
 import TextArea from "../components/TextArea";
-import { useForm, useFieldArray, set } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 
 const CreateCocktail = () => {
   const [fileUploadError, setFileUploadError] = useState('');
   
-  const { control, register, handleSubmit, getValues, setValue } = useForm({
+  const { control, register, handleSubmit, setValue } = useForm({
     defaultValues: {
       name: '',
       description: '',
@@ -59,10 +59,8 @@ const CreateCocktail = () => {
         // We need to store the relative URL for later use
         const result = await response.json()
         setValue('imageUrl', result.relativeUrl);
-        console.log('File uploaded:', getValues('imageUrl'));
       } else {
         const error = await response.text();
-        console.error('File upload failed:', error);
         setFileUploadError(error);
       }
     } catch (error) {
