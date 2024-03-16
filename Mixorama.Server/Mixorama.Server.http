@@ -1,6 +1,0 @@
-@Mixorama.Server_HostAddress = http://localhost:5018
-
-GET {{Mixorama.Server_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

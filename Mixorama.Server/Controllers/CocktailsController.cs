@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Mixorama.Server.Database;
 using Mixorama.Server.Infrastructure;
 
 namespace Mixorama.Server.Controllers;
@@ -8,10 +9,12 @@ namespace Mixorama.Server.Controllers;
 public class CocktailsController : ControllerBase
 {
     private readonly ILogger<CocktailsController> _logger;
+    private readonly CocktailContext _db;
 
-    public CocktailsController(ILogger<CocktailsController> logger)
+    public CocktailsController(ILogger<CocktailsController> logger, CocktailContext db)
     {
         _logger = logger;
+        _db = db;
     }
 
     [HttpGet]
@@ -53,8 +56,31 @@ public class CocktailsController : ControllerBase
     [ProducesResponseType(typeof(Cocktail), StatusCodes.Status201Created)]
     public async Task<IActionResult> CreateCocktail(CreateCocktailRequest request)
     {
-        // TODO: Actually add the cocktail to the database
-        _logger.LogCocktailCreated(request);
+        CocktailEntity entity = new()
+        {
+            Name = request.Name,
+            Description = request.Description,
+            ImageUrl = request.ImageUrl,
+            Ingredients = request.Ingredients.Select(i => new IngredientEntity
+            {
+                Name = i.Name,
+                Quantity = i.Quantity,
+                Unit = i.Unit
+            }).ToList()
+        };
+
+        try 
+        {   
+            await _db.Cocktails.AddAsync(entity);
+            await _db.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to create cocktail");
+            return Problem("Failed to create cocktail", statusCode: StatusCodes.Status500InternalServerError);
+        }
+        
+
         return CreatedAtAction(nameof(GetCocktail), new { name = request.Name }, request);
     }
 
@@ -117,7 +143,7 @@ public class CocktailsController : ControllerBase
         string Name,  
         string Description, 
         string ImageUrl,
-        Ingredient[] Ingredients);
+        ICollection<Ingredient> Ingredients);
 
     public record Ingredient(
         string Name,

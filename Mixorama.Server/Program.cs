@@ -1,19 +1,29 @@
+using Microsoft.EntityFrameworkCore;
 using Mixorama.Server.Authentication;
+using Mixorama.Server.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 {
     var configuration = builder.Configuration;
     
     builder.Logging.ClearProviders();
-    builder.Logging.AddJsonConsole(options => options.JsonWriterOptions = new() 
-    { 
-        Indented = true 
+    builder.Logging.AddJsonConsole(options =>  
+    {
+        options.IncludeScopes = false;
+        options.TimestampFormat = "HH:mm:ss"; 
+        options.JsonWriterOptions = new() 
+        { 
+            Indented = true,
+        };
     });
 
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddBackendForFrontendAuthentication(configuration);
     builder.Services.AddHttpClient();
     builder.Services.AddControllers();
+
+    builder.Services.AddDbContext<CocktailContext>(opt =>
+        opt.UseSqlServer(configuration.GetConnectionString("CocktailContext")));
 
     // Swagger API Documentation
     builder.Services.AddMvc();
