@@ -21,7 +21,6 @@ public class CocktailsController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<Cocktail>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetCocktails()
     {
-        _logger.LogInformation("Getting cocktails");
         var result = Cocktails;
         return Ok(result);
     }

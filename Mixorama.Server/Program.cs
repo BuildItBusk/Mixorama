@@ -1,3 +1,4 @@
+using System.Text.Encodings.Web;
 using Microsoft.EntityFrameworkCore;
 using Mixorama.Server.Authentication;
 using Mixorama.Server.Database;
@@ -13,7 +14,8 @@ var builder = WebApplication.CreateBuilder(args);
         options.TimestampFormat = "HH:mm:ss"; 
         options.JsonWriterOptions = new() 
         { 
-            Indented = true,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+            Indented = true
         };
     });
 
