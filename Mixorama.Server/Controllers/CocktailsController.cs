@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Mixorama.Server.Database;
 using Mixorama.Server.Infrastructure;
 
@@ -21,7 +22,20 @@ public class CocktailsController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<Cocktail>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetCocktails()
     {
-        var result = Cocktails;
+        var cocktails =  _db.Cocktails.Include(c => c.Ingredients);
+        List<Cocktail> result = await cocktails.Select(c => new Cocktail
+        {
+            Name = c.Name,
+            Description = c.Description,
+            ImageUrl = c.ImageUrl,
+            Ingredients = c.Ingredients.Select(i => new Ingredient
+            (
+                i.Name,
+                i.Quantity,
+                i.Unit
+            ))
+        }).ToListAsync();
+        
         return Ok(result);
     }
 
@@ -136,13 +150,14 @@ public class CocktailsController : ControllerBase
         public string Name { get; init; } = default!;
         public string Description { get; init; } = default!;
         public string ImageUrl { get; init; } = default!;
+        public IEnumerable<Ingredient> Ingredients { get; init; } = default!;
     }
 
     public record CreateCocktailRequest(
         string Name,  
         string Description, 
         string ImageUrl,
-        ICollection<Ingredient> Ingredients);
+        IEnumerable<Ingredient> Ingredients);
 
     public record Ingredient(
         string Name,
