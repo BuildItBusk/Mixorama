@@ -101,49 +101,31 @@ public class CocktailsController : ControllerBase
     [ProducesResponseType(typeof(Cocktail), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetCocktail(string name)
     {
-        _logger.LogInformation($"Getting cocktail {name}");
-        var result = Cocktails.FirstOrDefault(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-        if (result is null)
+    CocktailEntity? cocktail = await _db.Cocktails
+        .Where(c => EF.Functions.Like(c.Name, $"{name}"))
+        .Include(c => c.Ingredients)
+        .FirstOrDefaultAsync();
+        
+        if (cocktail is null)
         {
             return NotFound();
         }
 
+        Cocktail result = new()
+        {
+            Name = cocktail.Name,
+            Description = cocktail.Description,
+            ImageUrl = cocktail.ImageUrl,
+            Ingredients = cocktail.Ingredients.Select(i => new Ingredient
+            (
+                i.Name,
+                i.Quantity,
+                i.Unit
+            ))
+        };
+
         return Ok(result);
     }
-
-    private static List<Cocktail> Cocktails =>
-        [
-            new Cocktail
-            {
-                Name = "Mojito",
-                Description = "A refreshing Cuban highball",
-                ImageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Mojito_-_Three_Ingredients_%281%29.jpg/800px-Mojito_-_Three_Ingredients_%281%29.jpg"
-            },
-            new Cocktail
-            {
-                Name = "Margarita",
-                Description = "A cocktail consisting of tequila, orange liqueur, and lime juice often served with salt on the rim of the glass",
-                ImageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/MargaritaReal.jpg/800px-MargaritaReal.jpg"
-            },
-            new Cocktail
-            {
-                Name = "Pina Colada",
-                Description = "A sweet cocktail made with rum, cream of coconut or coconut milk, and pineapple juice, usually served either blended or shaken with ice",
-                ImageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Pi%C3%B1a_Colada.jpg/800px-Pi%C3%B1a_Colada.jpg"
-            },
-            new Cocktail
-            {
-                Name = "Cosmopolitan",
-                Description = "A cocktail made with vodka, triple sec, cranberry juice, and freshly squeezed or sweetened lime juice",
-                ImageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Cosmopolitan_%28345789642%29.jpg/800px-Cosmopolitan_%28345789642%29.jpg"
-            },
-            new Cocktail
-            {
-                Name = "Mai Tai",
-                Description = "A cocktail based on rum, Curaçao liqueur, orgeat syrup, and lime juice, associated with Polynesian-style settings",
-                ImageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Mai_Tai_%282%29.jpg/800px-Mai_Tai_%282%29.jpg"
-            }
-        ];
 
     public class Cocktail()
     {
